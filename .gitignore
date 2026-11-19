@@ -1,0 +1,12 @@
+.venv/
+runtime/
+__pycache__/
+*.pyc
+dist/
+build/
+installer/
+packaging/vendor/
+assets/*
+!assets/.gitkeep
+!assets/app.ico
+*.log

@@ -1,0 +1,5 @@
+fastapi>=0.110
+uvicorn>=0.29
+sounddevice>=0.4.6
+miniaudio>=1.59
+pywebview>=5.0

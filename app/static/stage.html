@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STAGE</title>
+<link rel="stylesheet" href="/static/stage.css?v=2">
+<script src="/static/stage.js?v=2" defer></script>
+</head>
+<body>
+<div class="stage" id="stage">
+  <video id="main-video" class="layer main-video" muted loop playsinline autoplay></video>
+  <video id="main-cam" class="layer main-cam" muted autoplay playsinline></video>
+  <div class="fallback" id="fallback" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <div class="topbar">
+    <span class="live"><b></b>LIVE</span>
+    <span class="meter"><em id="viewers">0</em> 人在看</span>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+
+  <div class="pip" id="pip" hidden>
+    <video id="pip-video" class="pip-video" muted loop playsinline autoplay></video>
+    <video id="pip-cam" class="pip-video" muted autoplay playsinline hidden></video>
+  </div>
+
+  <div class="subtitle" id="subtitle">
+    <span class="who" id="sub-who">观众</span>
+    <span class="text" id="sub-text"></span>
+  </div>
+
+  <div class="hint" id="hint" hidden></div>
+  <div class="debug" id="debug" hidden></div>
+</div>
+</body>
+</html>

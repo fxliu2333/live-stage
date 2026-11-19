@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>直播演播厅 · 控制台</title>
+<link rel="stylesheet" href="/static/control.css?v=7">
+<script src="/static/control.js?v=7" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">声</span>
+    <div><h1>直播演播厅</h1><p>本地运行 · 摄像头 + 讲解语音 + 自动回复</p></div>
+  </div>
+  <div class="status">
+    <span class="chip" id="chip-service">本地服务</span>
+    <span class="chip" id="chip-stage">演播窗口 —</span>
+    <span class="chip" id="chip-audio">虚拟声卡 —</span>
+    <span class="chip" id="chip-cloud">云端 —</span>
+  </div>
+</header>
+
+<main>
+  <section class="card launch">
+    <div class="card-head">
+      <h2>开播</h2>
+      <span class="tag" id="launch-tag">未开播</span>
+    </div>
+    <label class="field">
+      <span>直播间地址</span>
+      <input id="live-url" placeholder="https://live.douyin.com/123456" spellcheck="false">
+    </label>
+    <div class="row">
+      <button id="launch-all" class="primary big">一键开播</button>
+      <button id="launch-stop" class="ghost big">下播</button>
+      <label class="check" style="margin:0">
+        <input type="checkbox" id="live-auto" checked>
+        自动回复弹幕
+      </label>
+    </div>
+    <div class="row">
+      <span class="note" id="launch-note">开播会依次：循环播放讲解 → 打开采集窗口 → 自动回复弹幕。</span>
+    </div>
+    <div id="live-comments" class="segment-list"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>讲解文案</h2>
+      <span class="tag" id="script-tag">未导入</span>
+    </div>
+    <label class="field">
+      <span>口播稿（空行分段，每段不超过 120 字）</span>
+      <textarea id="script-text" rows="4" maxlength="60000"
+        placeholder="把口播稿粘贴到这里，点「导入并切分」"></textarea>
+    </label>
+    <div class="row">
+      <input id="script-file" type="file" accept=".txt,.md,text/plain">
+      <button id="script-import" class="secondary">导入并切分</button>
+      <button id="script-prepare" class="primary">生成语音</button>
+      <button id="script-clear" class="ghost">清空</button>
+    </div>
+    <div id="script-list" class="segment-list"></div>
+    <div class="row">
+      <button id="script-start" class="ghost">手动开始讲解</button>
+      <button id="script-stop" class="ghost">停止</button>
+      <label class="check" style="margin:0">
+        <input type="checkbox" id="script-loop">
+        循环
+      </label>
+      <span class="note" id="script-note"></span>
+    </div>
+  </section>
+
+  <details class="card advanced" id="advanced">
+    <summary>
+      <h2>高级设置</h2>
+      <span class="note">声音设备 · 演播画面 · 弹幕采集 · 云端账号 · 直播伴侣</span>
+    </summary>
+    <div class="adv-body">
+      <section class="subcard">
+        <div class="card-head">
+          <h2>声音链路</h2>
+          <span class="tag" id="audio-tag">未检测</span>
+        </div>
+        <p class="hint">抖音直播伴侣的窗口捕获只带画面，声音必须伪装成麦克风输入。</p>
+        <label class="field">
+          <span>程序声音输出到（播放设备，不是麦克风；选 CABLE Input）</span>
+          <select id="device-select"><option value="">正在读取设备…</option></select>
+        </label>
+        <span class="note" id="cable-note" hidden></span>
+        <div class="row">
+          <button id="refresh-devices" class="ghost">刷新设备</button>
+          <button id="test-tone" class="primary">播放 2 秒测试音</button>
+          <span class="note" id="tone-note"></span>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="monitor-audio" checked>
+          本地监听：声音同时从扬声器放一份，方便自己听到（直播伴侣仍从 CABLE 取声）
+        </label>
+        <div class="row">
+          <span class="note" id="play-note">播放通道：—</span>
+        </div>
+        <div class="row">
+          <button id="record-line" class="ghost">录制虚拟线 10 秒</button>
+          <span class="note" id="record-note">用来判断颤音出在程序还是直播伴侣</span>
+        </div>
+        <div class="row">
+          <span class="note" id="system-note">系统默认输出：读取中…</span>
+          <button id="release-audio" class="ghost">交还扬声器</button>
+        </div>
+      </section>
+
+      <section class="subcard">
+        <div class="card-head">
+          <h2>演播画面</h2>
+          <span class="tag" id="video-tag">未设置素材</span>
+        </div>
+        <label class="field">
+          <span>主画面</span>
+          <div class="segmented">
+            <button type="button" data-main="camera" class="active">摄像头</button>
+            <button type="button" data-main="video">循环视频</button>
+          </div>
+        </label>
+        <label class="field">
+          <span>画面叠加</span>
+          <div class="segmented">
+            <button type="button" data-overlay="none" class="active">纯画面</button>
+            <button type="button" data-overlay="pip">画中画（真人小窗）</button>
+            <button type="button" data-overlay="full">字幕与角标</button>
+          </div>
+        </label>
+        <div class="row" id="pip-options" hidden>
+          <label class="field">
+            <span>小窗位置</span>
+            <div class="segmented">
+              <button type="button" data-pip-corner="br" class="active">右下</button>
+              <button type="button" data-pip-corner="bl">左下</button>
+            </div>
+          </label>
+          <label class="field">
+            <span>小窗大小</span>
+            <div class="segmented">
+              <button type="button" data-pip-size="small">小</button>
+              <button type="button" data-pip-size="medium" class="active">中</button>
+              <button type="button" data-pip-size="large">大</button>
+            </div>
+          </label>
+          <span class="note">主画面用循环视频时，小窗放实时摄像头；主画面用摄像头时，小窗放循环视频。</span>
+        </div>
+        <label class="field">
+          <span>摄像头</span>
+          <div class="row">
+            <select id="camera-select"><option value="">默认摄像头</option></select>
+            <button id="load-cameras" class="ghost">读取设备</button>
+          </div>
+        </label>
+        <label class="field">
+          <span>循环视频（mp4 / webm / mov，最大 4GB，H.264 编码）</span>
+          <div class="row">
+            <input id="video-file" type="file" accept="video/mp4,video/webm,video/quicktime">
+            <button id="video-upload" class="primary">上传</button>
+            <button id="clear-video" class="ghost">清空</button>
+          </div>
+        </label>
+        <div class="row">
+          <span class="note">演播窗口标题是 STAGE，直播伴侣捕获时按这个标题找。</span>
+        </div>
+        <div class="row">
+          <span class="note" id="paint-note">捕获分辨率待上报</span>
+        </div>
+      </section>
+
+      <section class="subcard">
+        <div class="card-head">
+          <h2>弹幕采集</h2>
+          <span class="tag" id="live-tag">未开始</span>
+        </div>
+        <p class="hint">开播时会自动开始采集；这里可以单独启停、看日志和诊断页面结构。</p>
+        <div class="row">
+          <button id="live-start" class="ghost">开始采集</button>
+          <button id="live-stop" class="ghost">停止</button>
+          <button id="live-probe" class="ghost">诊断采集</button>
+        </div>
+        <label class="field">
+          <span>等待回复时的过渡语（留空关闭）</span>
+          <input id="live-filler" placeholder="例如 嗯，我看一下哈">
+        </label>
+        <div class="row">
+          <span class="note" id="live-note">采集读的是 Edge 窗口里的直播间页面，那个窗口要保持打开。</span>
+        </div>
+        <pre id="live-probe-out" class="probe" hidden></pre>
+      </section>
+
+      <section class="subcard">
+        <div class="card-head">
+          <h2>商品资料（决定自动回答）</h2>
+          <span class="tag" id="product-tag">未读取</span>
+        </div>
+        <p class="hint">云端只按这里的资料回答。发货、售后、规格填了，对应弹幕就会自动答；价格类问题按设置不回答，不用填。</p>
+        <div class="row">
+          <label class="field">
+            <span>发货说明</span>
+            <input id="prod-logistics" placeholder="例如 48 小时内发货，默认中通">
+          </label>
+          <label class="field">
+            <span>售后政策</span>
+            <input id="prod-after" placeholder="例如 7 天无理由，含运费险">
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>规格参数</span>
+            <input id="prod-specs" placeholder="例如 支持 3 个账号，含 1 年服务">
+          </label>
+          <label class="field">
+            <span>适用人群</span>
+            <input id="prod-audience" placeholder="例如 中小商家、门店">
+          </label>
+        </div>
+        <label class="field">
+          <span>优惠活动</span>
+          <input id="prod-promotion" placeholder="例如 首月 9.9 元；不填就不谈优惠">
+        </label>
+        <div class="row">
+          <button id="product-load" class="ghost">读取</button>
+          <button id="product-save" class="primary">保存到云端</button>
+          <span class="note" id="product-note"></span>
+        </div>
+      </section>
+
+      <section class="subcard">
+        <div class="card-head">
+          <h2>测试端语音</h2>
+          <span class="tag" id="cloud-tag">未登录</span>
+        </div>
+        <p class="hint">登录预发测试账号后，回复会用该账号训练好的音色在云端合成；密码不保存到磁盘。</p>
+        <label class="field">
+          <span>云端地址</span>
+          <input id="cloud-base" value="https://live-staging.tuoxiaoxi.com" spellcheck="false">
+        </label>
+        <div class="row">
+          <label class="field">
+            <span>手机号</span>
+            <input id="cloud-phone" inputmode="tel" maxlength="11" placeholder="测试账号手机号">
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input id="cloud-password" type="password" autocomplete="current-password" placeholder="仅本次使用">
+          </label>
+        </div>
+        <div class="row">
+          <button id="cloud-login" class="primary">登录测试端</button>
+          <button id="cloud-logout" class="ghost" hidden>退出登录</button>
+          <button id="cloud-refresh" class="ghost" hidden>刷新配置</button>
+          <span class="note" id="cloud-note"></span>
+        </div>
+        <label class="field" id="cloud-project-field" hidden>
+          <span>合成所用的商品（决定知识库与话术上下文）</span>
+          <select id="cloud-project"></select>
+        </label>
+        <span class="note" id="cloud-voice" hidden></span>
+      </section>
+
+      <section class="subcard">
+        <div class="card-head"><h2>联调一条回复</h2><span class="tag" id="reply-tag">待触发</span></div>
+        <p class="hint">点击后演播窗口会出现字幕气泡；已登录测试端时用云端音色合成，否则退回本机语音。</p>
+        <label class="field">
+          <span>观众昵称</span>
+          <input id="reply-name" value="路人甲" maxlength="20">
+        </label>
+        <label class="field">
+          <span>回复内容</span>
+          <textarea id="reply-text" rows="3" maxlength="200">这个软件支持多账号同时开播吗？</textarea>
+        </label>
+        <div class="row">
+          <button id="send-reply" class="primary">推一条测试回复</button>
+          <span class="note" id="reply-note"></span>
+        </div>
+      </section>
+
+      <section class="subcard steps">
+        <div class="card-head"><h2>直播伴侣接入</h2><span class="tag">一次性配置</span></div>
+        <ol>
+          <li>装 <b>VB-Audio Virtual Cable</b>，装完重启一次电脑。</li>
+          <li>「输出设备」选 <b>CABLE Input</b>，点测试音，任务栏音量里能看到电平跳动。</li>
+          <li>抖音直播伴侣 → 添加素材 → <b>窗口捕获</b> → 选标题为 <b>STAGE</b> 的窗口。</li>
+          <li>直播伴侣 → 麦克风 → 选 <b>CABLE Output</b>。</li>
+          <li>输出分辨率设 1080×1920，预览画面里字幕应清晰、无黑边。</li>
+        </ol>
+        <p class="warn">采集读的是 Edge 页面，那个窗口要保持打开；采集不到时点「诊断采集」查看页面结构。</p>
+      </section>
+    </div>
+  </details>
+</main>
+</body>
+</html>
